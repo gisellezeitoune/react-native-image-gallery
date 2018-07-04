@@ -22,7 +22,8 @@ export default class ViewTransformer extends React.Component {
         onSingleTapConfirmed: PropTypes.func,
         onLayout: PropTypes.func,
         onTransformStart: PropTypes.func,
-        children: PropTypes.node
+        children: PropTypes.node,
+        resetZoom: PropTypes.bool
     };
 
     static defaultProps = {
@@ -31,7 +32,8 @@ export default class ViewTransformer extends React.Component {
         enableTranslate: true,
         enableTransform: true,
         maxScale: 1,
-        enableResistance: false
+        enableResistance: false,
+        resetZoom: false
     };
 
     constructor (props) {
@@ -119,6 +121,9 @@ export default class ViewTransformer extends React.Component {
             translateX: this.state.translateX,
             translateY: this.state.translateY
         });
+        if(this.props.resetZoom && !prevProps.resetZoom && this.state.scale > 1) {
+            this.animateBounce(true)
+        }
     }
 
     componentWillUnmount () {
@@ -383,14 +388,14 @@ export default class ViewTransformer extends React.Component {
         ).start();
     }
 
-    animateBounce () {
+    animateBounce (resetZoom) {
         let curScale = this.state.scale;
         let minScale = 1;
         let maxScale = this.props.maxScale;
         let scaleBy = 1;
         if (curScale > maxScale) {
             scaleBy = maxScale / curScale;
-        } else if (curScale < minScale) {
+        } else if (curScale < minScale || resetZoom) {
             scaleBy = minScale / curScale;
         }
 
