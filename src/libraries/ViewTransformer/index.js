@@ -56,6 +56,9 @@ export default class ViewTransformer extends React.Component {
         this.contentRect = this.contentRect.bind(this);
         this.transformedContentRect = this.transformedContentRect.bind(this);
         this.animate = this.animate.bind(this);
+        this.onResponderMove = this.onResponderMove.bind(this)
+        this.onResponderGrant = this.onResponderGrant.bind(this)
+        this.onResponderRelease = this.onResponderRelease.bind(this)
 
         this.scroller = new Scroller(true, (dx, dy, scroller) => {
             if (dx === 0 && dy === 0 && scroller.isFinished()) {
@@ -67,6 +70,20 @@ export default class ViewTransformer extends React.Component {
                 translateX: this.state.translateX + dx / this.state.scale,
                 translateY: this.state.translateY + dy / this.state.scale
             });
+        });
+
+        this.gestureResponder = createResponder({
+            onStartShouldSetResponder: (evt, gestureState) => true,
+            onMoveShouldSetResponderCapture: (evt, gestureState) => true,
+            // onMoveShouldSetResponder: this.handleMove,
+            onResponderMove: this.onResponderMove,
+            onResponderGrant: this.onResponderGrant,
+            onResponderRelease: this.onResponderRelease,
+            onResponderTerminate: this.onResponderRelease,
+            onResponderTerminationRequest: (evt, gestureState) => false, // Do not allow parent view to intercept gesture
+            onResponderSingleTapConfirmed: (evt, gestureState) => {
+                this.props.onSingleTapConfirmed && this.props.onSingleTapConfirmed();
+            }
         });
     }
 
@@ -95,21 +112,6 @@ export default class ViewTransformer extends React.Component {
         return new Transform(this.state.scale, this.state.translateX, this.state.translateY);
     }
 
-    componentWillMount () {
-        this.gestureResponder = createResponder({
-            onStartShouldSetResponder: (evt, gestureState) => true,
-            onMoveShouldSetResponderCapture: (evt, gestureState) => true,
-            // onMoveShouldSetResponder: this.handleMove,
-            onResponderMove: this.onResponderMove,
-            onResponderGrant: this.onResponderGrant,
-            onResponderRelease: this.onResponderRelease,
-            onResponderTerminate: this.onResponderRelease,
-            onResponderTerminationRequest: (evt, gestureState) => false, // Do not allow parent view to intercept gesture
-            onResponderSingleTapConfirmed: (evt, gestureState) => {
-                this.props.onSingleTapConfirmed && this.props.onSingleTapConfirmed();
-            }
-        });
-    }
 
     componentDidUpdate (prevProps, prevState) {
         this.props.onViewTransformed && this.props.onViewTransformed({
@@ -131,6 +133,7 @@ export default class ViewTransformer extends React.Component {
 
         return (
             <View
+              style={{ flex: 1 }}
               {...this.props}
               {...gestureResponder}
               ref={'innerViewRef'}
