@@ -3,6 +3,7 @@ import { View, ViewPropTypes } from 'react-native';
 import PropTypes from 'prop-types';
 import { createResponder } from './libraries/GestureResponder';
 import TransformableImage from './libraries/TransformableImage';
+import ViewTransformer from './libraries/ViewTransformer';
 import ViewPager from './libraries/ViewPager';
 
 const DEFAULT_FLAT_LIST_PROPS = {
@@ -289,3 +290,5 @@ export default class Gallery extends PureComponent {
         );
     }
 }
+
+export { ViewTransformer }
